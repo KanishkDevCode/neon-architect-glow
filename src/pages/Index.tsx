@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Cpu, Zap } from 'lucide-react';
 
 // PASTE YOUR NGROK URL HERE (without /process - it will be added automatically)
-const BACKEND_URL = 'https://your-ngrok-url.ngrok.io';
+const BACKEND_URL = 'https://587c1780d479.ngrok-free.app';
 
 interface ProcessingResult {
   wallImage?: string;
