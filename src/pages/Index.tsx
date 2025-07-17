@@ -10,13 +10,7 @@ import { Cpu, Zap } from 'lucide-react';
 const BACKEND_URL = 'https://2daa72048959.ngrok-free.app';
 
 interface ProcessingResult {
-  wallImage?: string;
-  roomImage?: string;
-  objectImage?: string;
-  overlayImage?: string;
-  geojsonUrl?: string;
-  ifcUrl?: string;
-  zipUrl?: string;
+  zipBlobUrl?: string;
 }
 
 const Index = () => {
@@ -35,6 +29,17 @@ const Index = () => {
     }
   };
 
+  // Helper to trigger download in browser
+  const downloadBlob = (blob: Blob, filename: string) => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+    return url;
+  };
+
   const handleImageUpload = async (file: File) => {
     setSelectedImage(file);
     setIsProcessing(true);
@@ -42,10 +47,8 @@ const Index = () => {
     setResults(null);
 
     try {
-      // Simulate processing steps
       await simulateProcessing();
 
-      // Real API call to your backend
       const formData = new FormData();
       formData.append('image', file);
 
@@ -58,12 +61,14 @@ const Index = () => {
         throw new Error('Backend processing failed');
       }
 
-      const results = await response.json();
-      setResults(results);
-      
+      // Get ZIP blob and trigger download to user
+      const zipBlob = await response.blob();
+      const url = downloadBlob(zipBlob, 'structify_output.zip');
+      setResults({ zipBlobUrl: url });
+
       toast({
         title: "Processing Complete",
-        description: "Floorplan analysis finished successfully",
+        description: "Floorplan analysis finished successfully. Your output ZIP has been downloaded.",
       });
     } catch (error) {
       toast({
@@ -79,14 +84,12 @@ const Index = () => {
 
   const handleApplyThresholds = async (thresholds: Record<string, number>) => {
     if (!selectedImage) return;
-
     setIsApplyingThresholds(true);
 
     try {
-      // Real API call with thresholds
       const formData = new FormData();
       formData.append('image', selectedImage);
-      
+
       Object.entries(thresholds).forEach(([key, value]) => {
         formData.append(key, value.toString());
       });
@@ -100,12 +103,13 @@ const Index = () => {
         throw new Error('Backend threshold processing failed');
       }
 
-      const results = await response.json();
-      setResults(results);
+      const zipBlob = await response.blob();
+      const url = downloadBlob(zipBlob, 'structify_output.zip');
+      setResults({ zipBlobUrl: url });
 
       toast({
         title: "Thresholds Applied",
-        description: "Results updated with new threshold values",
+        description: "Results updated with new threshold values. Your output ZIP has been downloaded.",
       });
     } catch (error) {
       toast({
@@ -138,14 +142,12 @@ const Index = () => {
 
         {/* Main Grid */}
         <div className={`grid gap-6 ${results ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 place-items-center'}`}>
-          {/* Left Column */}
           <div className={`space-y-6 ${!results ? 'max-w-md w-full' : ''}`}>
             <ImageUpload
               onImageSelect={handleImageUpload}
               selectedImage={selectedImage}
               disabled={isProcessing}
             />
-
             {isProcessing && (
               <ProcessingAnimation
                 isProcessing={isProcessing}
@@ -153,8 +155,6 @@ const Index = () => {
               />
             )}
           </div>
-
-          {/* Right Column - Only show when there are results */}
           {results && (
             <div className="space-y-6">
               <ThresholdPanel
@@ -162,11 +162,20 @@ const Index = () => {
                 isVisible={!!results && !isProcessing}
                 isLoading={isApplyingThresholds}
               />
-
               <ResultsPanel
                 results={results}
                 isVisible={!!results && !isProcessing}
               />
+              <div>
+                {/* Download link so user can download again if they missed auto-download */}
+                <a
+                  href={results.zipBlobUrl}
+                  download="structify_output.zip"
+                  className="button neon-border"
+                >
+                  Download Results (ZIP)
+                </a>
+              </div>
             </div>
           )}
         </div>
