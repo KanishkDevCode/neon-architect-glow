@@ -137,9 +137,9 @@ const Index = () => {
         </div>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={`grid gap-6 ${results ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 place-items-center'}`}>
           {/* Left Column */}
-          <div className="space-y-6">
+          <div className={`space-y-6 ${!results ? 'max-w-md w-full' : ''}`}>
             <ImageUpload
               onImageSelect={handleImageUpload}
               selectedImage={selectedImage}
@@ -154,19 +154,21 @@ const Index = () => {
             )}
           </div>
 
-          {/* Right Column */}
-          <div className="space-y-6">
-            <ThresholdPanel
-              onApplyThresholds={handleApplyThresholds}
-              isVisible={!!results && !isProcessing}
-              isLoading={isApplyingThresholds}
-            />
+          {/* Right Column - Only show when there are results */}
+          {results && (
+            <div className="space-y-6">
+              <ThresholdPanel
+                onApplyThresholds={handleApplyThresholds}
+                isVisible={!!results && !isProcessing}
+                isLoading={isApplyingThresholds}
+              />
 
-            <ResultsPanel
-              results={results}
-              isVisible={!!results && !isProcessing}
-            />
-          </div>
+              <ResultsPanel
+                results={results}
+                isVisible={!!results && !isProcessing}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
