@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Cpu, Zap } from 'lucide-react';
 
 // PASTE YOUR NGROK URL HERE (without /process - it will be added automatically)
-const BACKEND_URL = 'https://2daa72048959.ngrok-free.app';
+const BACKEND_URL = 'https://379cf5baa55f.ngrok-free.app';
 
 interface ProcessingResult {
   zipBlobUrl?: string;
