@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { BackendConnection } from '@/components/BackendConnection';
 import { ImageUpload } from '@/components/ImageUpload';
 import { ProcessingAnimation } from '@/components/ProcessingAnimation';
 import { ThresholdPanel } from '@/components/ThresholdPanel';
 import { ResultsPanel } from '@/components/ResultsPanel';
 import { useToast } from '@/hooks/use-toast';
 import { Cpu, Zap } from 'lucide-react';
+
+// PASTE YOUR NGROK URL HERE (without /process - it will be added automatically)
+const BACKEND_URL = 'https://your-ngrok-url.ngrok.io';
 
 interface ProcessingResult {
   wallImage?: string;
@@ -18,23 +20,12 @@ interface ProcessingResult {
 }
 
 const Index = () => {
-  const [backendUrl, setBackendUrl] = useState('');
-  const [isConnected, setIsConnected] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [results, setResults] = useState<ProcessingResult | null>(null);
   const [isApplyingThresholds, setIsApplyingThresholds] = useState(false);
   const { toast } = useToast();
-
-  const handleConnect = (url: string) => {
-    setBackendUrl(url);
-    setIsConnected(true);
-    toast({
-      title: "Backend Connected",
-      description: `Successfully connected to ${url}`,
-    });
-  };
 
   const simulateProcessing = async () => {
     const steps = ['Analyzing', 'Segmenting', 'Vectorizing', 'Generating'];
@@ -45,15 +36,6 @@ const Index = () => {
   };
 
   const handleImageUpload = async (file: File) => {
-    if (!isConnected) {
-      toast({
-        title: "Backend Not Connected",
-        description: "Please connect to backend first",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setSelectedImage(file);
     setIsProcessing(true);
     setCurrentStep(0);
@@ -63,22 +45,22 @@ const Index = () => {
       // Simulate processing steps
       await simulateProcessing();
 
-      // Mock API call - replace with actual backend integration
+      // Real API call to your backend
       const formData = new FormData();
       formData.append('image', file);
 
-      // Simulate API response
-      const mockResults: ProcessingResult = {
-        wallImage: URL.createObjectURL(file),
-        roomImage: URL.createObjectURL(file),
-        objectImage: URL.createObjectURL(file),
-        overlayImage: URL.createObjectURL(file),
-        geojsonUrl: '/mock-floorplan.geojson',
-        ifcUrl: '/mock-floorplan.ifc',
-        zipUrl: '/mock-results.zip',
-      };
+      const response = await fetch(`${BACKEND_URL}/process`, {
+        method: 'POST',
+        body: formData,
+      });
 
-      setResults(mockResults);
+      if (!response.ok) {
+        throw new Error('Backend processing failed');
+      }
+
+      const results = await response.json();
+      setResults(results);
+      
       toast({
         title: "Processing Complete",
         description: "Floorplan analysis finished successfully",
@@ -96,12 +78,12 @@ const Index = () => {
   };
 
   const handleApplyThresholds = async (thresholds: Record<string, number>) => {
-    if (!selectedImage || !isConnected) return;
+    if (!selectedImage) return;
 
     setIsApplyingThresholds(true);
 
     try {
-      // Mock API call with thresholds
+      // Real API call with thresholds
       const formData = new FormData();
       formData.append('image', selectedImage);
       
@@ -109,8 +91,17 @@ const Index = () => {
         formData.append(key, value.toString());
       });
 
-      // Simulate processing
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      const response = await fetch(`${BACKEND_URL}/process`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Backend threshold processing failed');
+      }
+
+      const results = await response.json();
+      setResults(results);
 
       toast({
         title: "Thresholds Applied",
@@ -149,12 +140,6 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column */}
           <div className="space-y-6">
-            <BackendConnection
-              onConnect={handleConnect}
-              isConnected={isConnected}
-              backendUrl={backendUrl}
-            />
-            
             <ImageUpload
               onImageSelect={handleImageUpload}
               selectedImage={selectedImage}
