@@ -222,7 +222,7 @@ export default function ResultsPage() {
                   <div key={item.key} className={`neon-border ${item.color} rounded-lg p-4 cyber-card`}>
                     <div className="aspect-square bg-muted/20 rounded mb-3 overflow-hidden">
                       <img 
-                        src={`https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop&crop=center`}
+                        src={results.segmentationFiles?.[item.key as keyof typeof results.segmentationFiles] || ''}
                         alt={item.label}
                         className="w-full h-full object-cover rounded"
                         onError={(e) => {
