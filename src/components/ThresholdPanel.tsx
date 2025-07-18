@@ -82,7 +82,7 @@ export function ThresholdPanel({ onApplyThresholds, isVisible, isLoading }: Thre
         <Button
           onClick={handleApply}
           disabled={isLoading}
-          className="w-full bg-primary/20 hover:bg-primary/30 neon-border pulse-glow"
+          className="w-full bg-primary/40 hover:bg-primary/60 text-primary-foreground neon-border pulse-glow font-bold"
         >
           {isLoading ? (
             <>

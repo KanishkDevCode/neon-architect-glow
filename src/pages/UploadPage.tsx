@@ -55,7 +55,7 @@ export default function UploadPage() {
           {selectedImage && (
             <Button
               onClick={handleStartProcessing}
-              className="w-full bg-primary/20 hover:bg-primary/30 neon-border pulse-glow h-12 text-lg"
+              className="w-full bg-primary/40 hover:bg-primary/60 text-primary-foreground neon-border pulse-glow h-12 text-lg font-bold"
             >
               <Play className="w-5 h-5 mr-2" />
               Start Processing

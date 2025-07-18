@@ -220,15 +220,26 @@ export default function ResultsPage() {
                   { key: 'composite_overlay', label: 'Composite Overlay', color: 'border-neon-purple/30' },
                 ].map((item) => (
                   <div key={item.key} className={`neon-border ${item.color} rounded-lg p-4 cyber-card`}>
-                    <div className="aspect-square bg-muted/20 rounded mb-3 flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                    <div className="aspect-square bg-muted/20 rounded mb-3 overflow-hidden">
+                      <img 
+                        src={`https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=400&h=400&fit=crop&crop=center`}
+                        alt={item.label}
+                        className="w-full h-full object-cover rounded"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                      <div className="w-full h-full flex items-center justify-center hidden">
+                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <p className="font-medium text-sm">{item.label}</p>
                       <Button
                         size="sm"
                         onClick={() => downloadFile(results.zipBlobUrl!, `${item.key}.png`)}
-                        className="w-full neon-border text-xs"
+                        className="w-full bg-primary/40 hover:bg-primary/60 text-primary-foreground neon-border text-xs font-medium"
                       >
                         <Download className="w-3 h-3 mr-1" />
                         Download
@@ -257,7 +268,7 @@ export default function ResultsPage() {
                 <Button
                   size="sm"
                   onClick={() => downloadFile(results.zipBlobUrl!, 'polygons_output.geojson')}
-                  className="bg-neon-green/20 hover:bg-neon-green/30 text-neon-green neon-border"
+                  className="bg-neon-green/40 hover:bg-neon-green/60 text-card neon-border font-medium"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download
@@ -283,7 +294,7 @@ export default function ResultsPage() {
                 <Button
                   size="sm"
                   onClick={() => downloadFile(results.zipBlobUrl!, 'floorplan_model.ifc')}
-                  className="bg-neon-pink/20 hover:bg-neon-pink/30 text-neon-pink neon-border"
+                  className="bg-neon-pink/40 hover:bg-neon-pink/60 text-card neon-border font-medium"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download
@@ -303,7 +314,7 @@ export default function ResultsPage() {
                 </div>
                 <Button
                   onClick={() => downloadFile(results.zipBlobUrl!, 'structify_output.zip')}
-                  className="bg-primary/20 hover:bg-primary/30 neon-border pulse-glow"
+                  className="bg-primary/40 hover:bg-primary/60 text-primary-foreground neon-border pulse-glow font-bold"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download All
