@@ -1,5 +1,10 @@
+// ResultsPage.tsx
+// npm install jszip
+
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import JSZip from 'jszip';
 import { ThresholdPanel } from '@/components/ThresholdPanel';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,63 +21,90 @@ import {
 } from 'lucide-react';
 
 // PASTE YOUR NGROK URL HERE (without /process - it will be added automatically)
-const BACKEND_URL = 'https://353f22ceeb2b.ngrok-free.app';
+const BACKEND_URL = 'https://9d83ac07ea45.ngrok-free.app';
 
-interface ProcessingResult {
-  zipBlobUrl?: string;
-  // Individual files that would be extracted from ZIP
-  segmentationFiles?: {
-    wall_detection_annotated?: string;
-    room_detection_annotated?: string;
-    object_detection_annotated?: string;
-    composite_overlay?: string;
-  };
-  vectorizationFiles?: {
-    polygons_output?: string;
-  };
-  modelFiles?: {
-    floorplan_model?: string;
-  };
-}
+// Util: sanitize filename for mapping
+const stripExt = (filename: string) =>
+  filename.replace(/\.jpg$|\.geojson$|\.ifc$/, '');
 
 export default function ResultsPage() {
-  const [results, setResults] = useState<ProcessingResult | null>(null);
+  const [segmentationImages, setSegmentationImages] = useState<Record<string, string>>({});
+  const [vectorizationFiles, setVectorizationFiles] = useState<Record<string, string>>({});
+  const [modelFiles, setModelFiles] = useState<Record<string, string>>({});
+  const [zipBlobUrl, setZipBlobUrl] = useState<string | null>(null);
   const [isApplyingThresholds, setIsApplyingThresholds] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if we have results
     const zipUrl = localStorage.getItem('resultsZipUrl');
     if (!zipUrl) {
       navigate('/');
       return;
     }
+    setZipBlobUrl(zipUrl);
 
-    // Set initial results (in a real app, you'd extract the ZIP or get individual file URLs)
-    setResults({
-      zipBlobUrl: zipUrl,
-      // For demo purposes, we'll use placeholder URLs
-      // In a real implementation, these would come from extracting the ZIP
-      segmentationFiles: {
-        wall_detection_annotated: zipUrl, // Placeholder
-        room_detection_annotated: zipUrl, // Placeholder
-        object_detection_annotated: zipUrl, // Placeholder
-        composite_overlay: zipUrl, // Placeholder
-      },
-      vectorizationFiles: {
-        polygons_output: zipUrl, // Placeholder
-      },
-      modelFiles: {
-        floorplan_model: zipUrl, // Placeholder
-      },
-    });
-  }, [navigate]);
+    const fetchAndExtractZip = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(zipUrl);
+        const zipBlob = await res.blob();
+        const zip = await JSZip.loadAsync(zipBlob);
+
+        const segImages: Record<string, string> = {};
+        for (const key of [
+          'wall_detection_annotated.jpg',
+          'room_detection_annotated.jpg',
+          'object_detection_annotated.jpg',
+          'composite_overlay.jpg'
+        ]) {
+          if (zip.files[key]) {
+            const fileBlob = await zip.files[key].async('blob');
+            segImages[stripExt(key)] = URL.createObjectURL(fileBlob);
+          }
+        }
+        setSegmentationImages(segImages);
+
+        const vecFiles: Record<string, string> = {};
+        for (const key of ['polygons_output.geojson']) {
+          if (zip.files[key]) {
+            const fileBlob = await zip.files[key].async('blob');
+            vecFiles[stripExt(key)] = URL.createObjectURL(fileBlob);
+          }
+        }
+        setVectorizationFiles(vecFiles);
+
+        const modFiles: Record<string, string> = {};
+        for (const key of ['floorplan_model.ifc']) {
+          if (zip.files[key]) {
+            const fileBlob = await zip.files[key].async('blob');
+            modFiles[stripExt(key)] = URL.createObjectURL(fileBlob);
+          }
+        }
+        setModelFiles(modFiles);
+
+        setError(null);
+      } catch (e) {
+        setError('Failed to load results: ' + (e instanceof Error ? e.message : e));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAndExtractZip();
+
+    return () => {
+      Object.values(segmentationImages).forEach(URL.revokeObjectURL);
+      Object.values(vectorizationFiles).forEach(URL.revokeObjectURL);
+      Object.values(modelFiles).forEach(URL.revokeObjectURL);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleApplyThresholds = async (thresholds: Record<string, number>) => {
     const imageData = localStorage.getItem('selectedImage');
     const imageUrl = localStorage.getItem('selectedImageUrl');
-    
     if (!imageData || !imageUrl) {
       toast({
         title: "Error",
@@ -82,18 +114,14 @@ export default function ResultsPage() {
       navigate('/');
       return;
     }
-
     setIsApplyingThresholds(true);
-
     try {
-      // Fetch the original image
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const file = new File([blob], JSON.parse(imageData).name, { type: JSON.parse(imageData).type });
 
       const formData = new FormData();
       formData.append('image', file);
-
       Object.entries(thresholds).forEach(([key, value]) => {
         formData.append(key, value.toString());
       });
@@ -102,27 +130,54 @@ export default function ResultsPage() {
         method: 'POST',
         body: formData,
       });
-
       if (!backendResponse.ok) {
         throw new Error('Backend threshold processing failed');
       }
 
       const zipBlob = await backendResponse.blob();
       const newZipUrl = URL.createObjectURL(zipBlob);
-      
-      // Update results with new ZIP
-      setResults(prev => prev ? {
-        ...prev,
-        zipBlobUrl: newZipUrl,
-      } : null);
-
-      // Update localStorage
+      setZipBlobUrl(newZipUrl);
       localStorage.setItem('resultsZipUrl', newZipUrl);
-
       toast({
         title: "Thresholds Applied",
         description: "Results updated with new threshold values.",
       });
+
+      // Re-extract and update all outputs from new ZIP
+      const zip = await JSZip.loadAsync(zipBlob);
+
+      const segImages: Record<string, string> = {};
+      for (const key of [
+        'wall_detection_annotated.jpg',
+        'room_detection_annotated.jpg',
+        'object_detection_annotated.jpg',
+        'composite_overlay.jpg'
+      ]) {
+        if (zip.files[key]) {
+          const fileBlob = await zip.files[key].async('blob');
+          segImages[stripExt(key)] = URL.createObjectURL(fileBlob);
+        }
+      }
+      setSegmentationImages(segImages);
+
+      const vecFiles: Record<string, string> = {};
+      for (const key of ['polygons_output.geojson']) {
+        if (zip.files[key]) {
+          const fileBlob = await zip.files[key].async('blob');
+          vecFiles[stripExt(key)] = URL.createObjectURL(fileBlob);
+        }
+      }
+      setVectorizationFiles(vecFiles);
+
+      const modFiles: Record<string, string> = {};
+      for (const key of ['floorplan_model.ifc']) {
+        if (zip.files[key]) {
+          const fileBlob = await zip.files[key].async('blob');
+          modFiles[stripExt(key)] = URL.createObjectURL(fileBlob);
+        }
+      }
+      setModelFiles(modFiles);
+
     } catch (error) {
       toast({
         title: "Threshold Update Failed",
@@ -144,24 +199,26 @@ export default function ResultsPage() {
   };
 
   const handleNewAnalysis = () => {
-    // Clear stored data
     localStorage.removeItem('selectedImage');
     localStorage.removeItem('selectedImageUrl');
     localStorage.removeItem('resultsZipUrl');
     navigate('/');
   };
 
-  if (!results) {
+  if (loading) {
     return (
       <div className="min-h-screen matrix-lines flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCw className="w-12 h-12 mx-auto mb-4 animate-spin text-primary" />
-          <p>Loading results...</p>
-        </div>
+        <div className="text-center text-neon-blue animate-pulse">Loading results...</div>
       </div>
     );
   }
-
+  if (error) {
+    return (
+      <div className="min-h-screen matrix-lines flex items-center justify-center">
+        <div className="text-center text-destructive">{error}</div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen matrix-lines">
       <div className="container mx-auto px-4 py-8">
@@ -179,22 +236,13 @@ export default function ResultsPage() {
           </p>
           <div className="h-1 w-24 mx-auto mt-4 bg-gradient-to-r from-transparent via-primary to-transparent opacity-60" />
         </div>
-
-        {/* Action Buttons */}
         <div className="flex gap-4 justify-center mb-8">
-          <Button
-            onClick={handleNewAnalysis}
-            variant="outline"
-            className="neon-border"
-          >
+          <Button onClick={handleNewAnalysis} variant="outline" className="neon-border">
             <ArrowLeft className="w-4 h-4 mr-2" />
             New Analysis
           </Button>
         </div>
-
-        {/* Main Grid */}
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Threshold Panel */}
           <div>
             <ThresholdPanel
               onApplyThresholds={handleApplyThresholds}
@@ -202,8 +250,6 @@ export default function ResultsPage() {
               isLoading={isApplyingThresholds}
             />
           </div>
-
-          {/* Results Sections */}
           <div className="space-y-6">
             {/* Image Segmentation Output */}
             <Card className="cyber-card p-6">
@@ -211,7 +257,6 @@ export default function ResultsPage() {
                 <ImageIcon className="w-6 h-6 text-neon-blue neon-glow" />
                 <h2 className="text-xl font-bold neon-text">Image Segmentation Output</h2>
               </div>
-              
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { key: 'wall_detection_annotated', label: 'Wall Detection', color: 'border-neon-blue/30' },
@@ -222,7 +267,7 @@ export default function ResultsPage() {
                   <div key={item.key} className={`neon-border ${item.color} rounded-lg p-4 cyber-card`}>
                     <div className="aspect-square bg-muted/20 rounded mb-3 overflow-hidden">
                       <img 
-                        src={results.segmentationFiles?.[item.key as keyof typeof results.segmentationFiles] || ''}
+                        src={segmentationImages[item.key] || ''}
                         alt={item.label}
                         className="w-full h-full object-cover rounded"
                         onError={(e) => {
@@ -238,7 +283,12 @@ export default function ResultsPage() {
                       <p className="font-medium text-sm">{item.label}</p>
                       <Button
                         size="sm"
-                        onClick={() => downloadFile(results.zipBlobUrl!, `${item.key}.png`)}
+                        onClick={() => {
+                          const filename = item.key + ".jpg";
+                          if (segmentationImages[item.key]) {
+                            downloadFile(segmentationImages[item.key], filename);
+                          }
+                        }}
                         className="w-full bg-primary/40 hover:bg-primary/60 text-primary-foreground neon-border text-xs font-medium"
                       >
                         <Download className="w-3 h-3 mr-1" />
@@ -249,14 +299,12 @@ export default function ResultsPage() {
                 ))}
               </div>
             </Card>
-
             {/* Vectorization Output */}
             <Card className="cyber-card p-6">
               <div className="flex items-center gap-3 mb-4">
                 <FileText className="w-6 h-6 text-neon-green neon-glow" />
                 <h2 className="text-xl font-bold neon-text">Vectorization Output</h2>
               </div>
-              
               <div className="flex items-center justify-between p-4 neon-border rounded-lg cyber-card">
                 <div className="flex items-center gap-3">
                   <FileText className="w-5 h-5 text-neon-green" />
@@ -267,7 +315,11 @@ export default function ResultsPage() {
                 </div>
                 <Button
                   size="sm"
-                  onClick={() => downloadFile(results.zipBlobUrl!, 'polygons_output.geojson')}
+                  onClick={() => {
+                    if (vectorizationFiles['polygons_output']) {
+                      downloadFile(vectorizationFiles['polygons_output'], 'polygons_output.geojson');
+                    }
+                  }}
                   className="bg-neon-green/40 hover:bg-neon-green/60 text-card neon-border font-medium"
                 >
                   <Download className="w-4 h-4 mr-2" />
@@ -275,14 +327,12 @@ export default function ResultsPage() {
                 </Button>
               </div>
             </Card>
-
             {/* 3D Model */}
             <Card className="cyber-card p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Package className="w-6 h-6 text-neon-pink neon-glow" />
                 <h2 className="text-xl font-bold neon-text">3D Model</h2>
               </div>
-              
               <div className="flex items-center justify-between p-4 neon-border rounded-lg cyber-card">
                 <div className="flex items-center gap-3">
                   <Package className="w-5 h-5 text-neon-pink" />
@@ -293,7 +343,11 @@ export default function ResultsPage() {
                 </div>
                 <Button
                   size="sm"
-                  onClick={() => downloadFile(results.zipBlobUrl!, 'floorplan_model.ifc')}
+                  onClick={() => {
+                    if (modelFiles['floorplan_model']) {
+                      downloadFile(modelFiles['floorplan_model'], 'floorplan_model.ifc');
+                    }
+                  }}
                   className="bg-neon-pink/40 hover:bg-neon-pink/60 text-card neon-border font-medium"
                 >
                   <Download className="w-4 h-4 mr-2" />
@@ -301,7 +355,6 @@ export default function ResultsPage() {
                 </Button>
               </div>
             </Card>
-
             {/* Download All */}
             <Card className="cyber-card p-6 bg-primary/10">
               <div className="flex items-center justify-between">
@@ -313,7 +366,9 @@ export default function ResultsPage() {
                   </div>
                 </div>
                 <Button
-                  onClick={() => downloadFile(results.zipBlobUrl!, 'structify_output.zip')}
+                  onClick={() => {
+                    if (zipBlobUrl) downloadFile(zipBlobUrl, 'structify_output.zip');
+                  }}
                   className="bg-primary/40 hover:bg-primary/60 text-primary-foreground neon-border pulse-glow font-bold"
                 >
                   <Download className="w-4 h-4 mr-2" />
