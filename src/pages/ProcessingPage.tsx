@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Cpu, Zap } from 'lucide-react';
 
 // PASTE YOUR NGROK URL HERE (without /process - it will be added automatically)
-const BACKEND_URL = 'https://9d83ac07ea45.ngrok-free.app';
+const BACKEND_URL = 'https://f3dd90fadcca.ngrok-free.app';
 
 export default function ProcessingPage() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -42,6 +42,7 @@ export default function ProcessingPage() {
       const formData = new FormData();
       formData.append('image', file);
 
+      // POST to backend, will include floorplan_scene_final.glb in zip output
       const backendResponse = await fetch(`${BACKEND_URL}/process`, {
         method: 'POST',
         body: formData,
@@ -85,6 +86,7 @@ export default function ProcessingPage() {
 
     // Start processing
     processImage();
+    // eslint-disable-next-line
   }, []);
 
   return (
