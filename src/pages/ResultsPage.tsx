@@ -1,7 +1,6 @@
 // ResultsPage.tsx
 // npm install jszip
 
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import JSZip from 'jszip';
@@ -21,11 +20,11 @@ import {
 } from 'lucide-react';
 
 // PASTE YOUR NGROK URL HERE (without /process - it will be added automatically)
-const BACKEND_URL = 'https://9d83ac07ea45.ngrok-free.app';
+const BACKEND_URL = 'https://f3dd90fadcca.ngrok-free.app';
 
 // Util: sanitize filename for mapping
 const stripExt = (filename: string) =>
-  filename.replace(/\.jpg$|\.geojson$|\.ifc$/, '');
+  filename.replace(/\.jpg$|\.geojson$|\.glb$/, '');
 
 export default function ResultsPage() {
   const [segmentationImages, setSegmentationImages] = useState<Record<string, string>>({});
@@ -77,7 +76,7 @@ export default function ResultsPage() {
         setVectorizationFiles(vecFiles);
 
         const modFiles: Record<string, string> = {};
-        for (const key of ['floorplan_model.ifc']) {
+        for (const key of ['floorplan_scene_final.glb']) {
           if (zip.files[key]) {
             const fileBlob = await zip.files[key].async('blob');
             modFiles[stripExt(key)] = URL.createObjectURL(fileBlob);
@@ -119,7 +118,6 @@ export default function ResultsPage() {
       const response = await fetch(imageUrl);
       const blob = await response.blob();
       const file = new File([blob], JSON.parse(imageData).name, { type: JSON.parse(imageData).type });
-
       const formData = new FormData();
       formData.append('image', file);
       Object.entries(thresholds).forEach(([key, value]) => {
@@ -170,14 +168,13 @@ export default function ResultsPage() {
       setVectorizationFiles(vecFiles);
 
       const modFiles: Record<string, string> = {};
-      for (const key of ['floorplan_model.ifc']) {
+      for (const key of ['floorplan_scene_final.glb']) {
         if (zip.files[key]) {
           const fileBlob = await zip.files[key].async('blob');
           modFiles[stripExt(key)] = URL.createObjectURL(fileBlob);
         }
       }
       setModelFiles(modFiles);
-
     } catch (error) {
       toast({
         title: "Threshold Update Failed",
@@ -337,15 +334,15 @@ export default function ResultsPage() {
                 <div className="flex items-center gap-3">
                   <Package className="w-5 h-5 text-neon-pink" />
                   <div>
-                    <p className="font-medium">floorplan_model.ifc</p>
-                    <p className="text-sm text-muted-foreground">3D building information model</p>
+                    <p className="font-medium">floorplan_scene_final.glb</p>
+                    <p className="text-sm text-muted-foreground">3D floorplan model (GLB)</p>
                   </div>
                 </div>
                 <Button
                   size="sm"
                   onClick={() => {
-                    if (modelFiles['floorplan_model']) {
-                      downloadFile(modelFiles['floorplan_model'], 'floorplan_model.ifc');
+                    if (modelFiles['floorplan_scene_final']) {
+                      downloadFile(modelFiles['floorplan_scene_final'], 'floorplan_scene_final.glb');
                     }
                   }}
                   className="bg-neon-pink/40 hover:bg-neon-pink/60 text-card neon-border font-medium"
