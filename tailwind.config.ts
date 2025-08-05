@@ -106,6 +106,10 @@ export default {
 					'0%': { transform: 'rotate(0deg)', filter: 'brightness(1)' },
 					'50%': { filter: 'brightness(1.2)' },
 					'100%': { transform: 'rotate(360deg)', filter: 'brightness(1)' }
+				},
+				'float-gentle': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' }
 				}
 			},
 			animation: {
@@ -115,7 +119,10 @@ export default {
 				'neon-flicker': 'neon-flicker 3s ease-in-out infinite',
 				'cyber-scan': 'cyber-scan 2s linear infinite',
 				'data-flow': 'data-flow 3s ease-in-out infinite',
-				'spin-glow': 'spin-glow 2s linear infinite'
+				'spin-glow': 'spin-glow 2s linear infinite',
+				'float-gentle': 'float-gentle 6s ease-in-out infinite',
+				'float-clouds': 'float-clouds 20s ease-in-out infinite',
+				'float-particles': 'float-particles 15s linear infinite'
 			}
 		}
 	},
