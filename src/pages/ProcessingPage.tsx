@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Cpu, Zap } from 'lucide-react';
 
 // PASTE YOUR NGROK URL HERE (without /process - it will be added automatically)
-const BACKEND_URL = 'https://b6b8ae2a9051.ngrok-free.app';
+const BACKEND_URL = 'https://bd193fb3ec0c.ngrok-free.app';
 
 export default function ProcessingPage() {
   const [currentStep, setCurrentStep] = useState(0);
