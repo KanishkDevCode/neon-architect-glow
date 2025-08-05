@@ -8,34 +8,34 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Cyberpunk Dark Theme */
-    --background: 220 25% 5%;
-    --foreground: 180 100% 90%;
+    /* Light Theme */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    --card: 220 25% 8%;
-    --card-foreground: 180 100% 90%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-    --popover: 220 25% 10%;
-    --popover-foreground: 180 100% 90%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 195 100% 50%;
-    --primary-foreground: 220 25% 5%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 25% 12%;
-    --secondary-foreground: 180 100% 85%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
 
-    --muted: 220 25% 10%;
-    --muted-foreground: 180 20% 60%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 155 100% 50%;
-    --accent-foreground: 220 25% 5%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
 
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 180 100% 90%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 220 25% 15%;
-    --input: 220 25% 12%;
-    --ring: 195 100% 50%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
 
     /* Neon Colors */
     --neon-blue: 195 100% 50%;
@@ -47,7 +47,7 @@ All colors MUST be HSL.
     /* Gradients */
     --gradient-neon: linear-gradient(135deg, hsl(var(--neon-blue)), hsl(var(--neon-green)));
     --gradient-cyber: linear-gradient(135deg, hsl(var(--neon-purple)), hsl(var(--neon-pink)));
-    --gradient-matrix: linear-gradient(180deg, hsl(var(--background)), hsl(220 25% 8%));
+    --gradient-matrix: linear-gradient(180deg, hsl(var(--background)), hsl(220 20% 96%));
 
     /* Glows */
     --glow-neon-blue: 0 0 20px hsl(var(--neon-blue) / 0.5);
@@ -120,7 +120,7 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-mono;
+    @apply bg-background text-foreground;
     background: var(--gradient-matrix);
     min-height: 100vh;
   }
@@ -157,8 +157,8 @@ All colors MUST be HSL.
   
   .matrix-lines {
     background-image: 
-      linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+      linear-gradient(rgba(100, 100, 100, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100, 100, 100, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 }
