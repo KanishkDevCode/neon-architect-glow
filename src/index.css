@@ -8,34 +8,34 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Soft Dark Theme */
-    --background: 210 20% 94%;
-    --foreground: 222.2 84% 4.9%;
+    /* Light Blue Intermediate Theme */
+    --background: 210 40% 92%;
+    --foreground: 210 20% 20%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 210 50% 96%;
+    --card-foreground: 210 20% 20%;
 
-    --popover: 0 0% 98%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 210 50% 96%;
+    --popover-foreground: 210 20% 20%;
 
-    --primary: 221.2 83.2% 53.3%;
+    --primary: 210 80% 45%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 88%;
-    --secondary-foreground: 222.2 84% 4.9%;
+    --secondary: 210 30% 85%;
+    --secondary-foreground: 210 20% 20%;
 
-    --muted: 210 40% 90%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 25% 88%;
+    --muted-foreground: 210 15% 45%;
 
-    --accent: 210 40% 90%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --accent: 200 70% 80%;
+    --accent-foreground: 210 20% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 85%;
-    --input: 214.3 31.8% 88%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 210 30% 82%;
+    --input: 210 30% 86%;
+    --ring: 210 80% 45%;
 
     /* Neon Colors */
     --neon-blue: 195 100% 50%;
@@ -47,7 +47,7 @@ All colors MUST be HSL.
     /* Gradients */
     --gradient-neon: linear-gradient(135deg, hsl(var(--neon-blue)), hsl(var(--neon-green)));
     --gradient-cyber: linear-gradient(135deg, hsl(var(--neon-purple)), hsl(var(--neon-pink)));
-    --gradient-matrix: linear-gradient(180deg, hsl(var(--background)), hsl(210 25% 90%));
+    --gradient-matrix: linear-gradient(180deg, hsl(var(--background)), hsl(200 40% 88%));
 
     /* Glows */
     --glow-neon-blue: 0 0 20px hsl(var(--neon-blue) / 0.5);
@@ -157,8 +157,8 @@ All colors MUST be HSL.
   
   .matrix-lines {
     background-image: 
-      linear-gradient(rgba(100, 100, 100, 0.1) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(100, 100, 100, 0.1) 1px, transparent 1px);
+      linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 }
