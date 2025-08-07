@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 // PASTE YOUR NGROK URL HERE (without /process - it will be added automatically)
-const BACKEND_URL = 'https://bd193fb3ec0c.ngrok-free.app';
+const BACKEND_URL = 'https://26493cbc38ac.ngrok-free.app';
 
 // Util: sanitize filename for mapping
 const stripExt = (filename: string) =>
