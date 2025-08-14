@@ -43,10 +43,10 @@ export function ImageUpload({ onImageSelect, selectedImage, disabled }: ImageUpl
       {!selectedImage ? (
         <div
           className={`
-            relative border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300
+            upload-box border-dashed rounded-lg p-8 text-center transition-all duration-500
             ${dragOver 
-              ? 'border-primary bg-primary/10 pulse-glow' 
-              : 'border-border hover:border-primary/50'
+              ? 'border-neon-blue bg-neon-blue/10 scale-105' 
+              : 'hover:border-neon-blue/60 hover:scale-[1.02]'
             }
             ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
           `}
@@ -64,8 +64,8 @@ export function ImageUpload({ onImageSelect, selectedImage, disabled }: ImageUpl
             disabled={disabled}
           />
           
-          <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-lg font-medium mb-2">
+          <Upload className="w-12 h-12 mx-auto mb-4 text-neon-blue neon-glow floating-element" />
+          <p className="text-lg font-medium mb-2 neon-text">
             Drag & Drop your floorplan image here
           </p>
           <p className="text-muted-foreground mb-4">
