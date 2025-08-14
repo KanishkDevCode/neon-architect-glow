@@ -36,7 +36,8 @@ export function ProcessingAnimation({ isProcessing, currentStep }: ProcessingAni
   if (!isProcessing) return null;
 
   return (
-    <Card className="cyber-card p-6">
+    <div className="animated-border">
+      <Card className="cyber-card p-6 animated-border-inner">
       <div className="space-y-6">
         <div className="text-center">
           <h3 className="text-xl font-bold neon-text mb-2">Processing Floorplan</h3>
@@ -106,5 +107,6 @@ export function ProcessingAnimation({ isProcessing, currentStep }: ProcessingAni
         </div>
       </div>
     </Card>
+    </div>
   );
 }

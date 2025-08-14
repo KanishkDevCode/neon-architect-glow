@@ -166,8 +166,8 @@ All colors MUST be HSL.
     z-index: -1;
   }
 
-  /* Neon Floating Orbs */
-  .neon-orbs {
+  /* Tech Floating Elements */
+  .tech-elements {
     position: fixed;
     top: 0;
     left: 0;
@@ -177,30 +177,76 @@ All colors MUST be HSL.
     z-index: -1;
   }
 
-  .neon-orbs::before {
+  /* CPU Chip */
+  .tech-elements::before {
     content: '';
     position: absolute;
-    width: 60px;
-    height: 60px;
-    background: radial-gradient(circle, hsl(var(--neon-blue) / 0.3), transparent 70%);
-    border-radius: 50%;
-    top: 20%;
-    left: 10%;
-    animation: float-orb-1 8s ease-in-out infinite;
-    filter: blur(1px);
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(45deg, hsl(var(--neon-blue) / 0.4), hsl(var(--neon-blue) / 0.2));
+    border: 2px solid hsl(var(--neon-blue) / 0.6);
+    border-radius: 4px;
+    top: 15%;
+    left: 20%;
+    animation: tech-float-1 10s ease-in-out infinite;
+    box-shadow: 0 0 15px hsl(var(--neon-blue) / 0.5), inset 0 0 10px hsl(var(--neon-blue) / 0.3);
   }
 
-  .neon-orbs::after {
+  /* Circuit Pattern */
+  .tech-elements::after {
     content: '';
     position: absolute;
-    width: 40px;
-    height: 40px;
-    background: radial-gradient(circle, hsl(var(--neon-blue) / 0.4), transparent 70%);
+    width: 30px;
+    height: 30px;
+    background: 
+      linear-gradient(90deg, hsl(var(--neon-blue) / 0.3) 2px, transparent 2px),
+      linear-gradient(0deg, hsl(var(--neon-blue) / 0.3) 2px, transparent 2px);
+    background-size: 8px 8px;
+    top: 70%;
+    right: 25%;
+    animation: tech-float-2 8s ease-in-out infinite;
     border-radius: 50%;
-    top: 60%;
-    right: 15%;
-    animation: float-orb-2 12s ease-in-out infinite;
-    filter: blur(1px);
+    filter: drop-shadow(0 0 8px hsl(var(--neon-blue) / 0.6));
+  }
+
+  /* Dark Blue Flakes */
+  .dark-flakes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  /* Flake 1 */
+  .dark-flakes::before {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: hsl(var(--neon-blue) / 0.6);
+    border-radius: 50%;
+    top: -20px;
+    left: 30%;
+    animation: flake-fall-1 15s linear infinite;
+    box-shadow: 0 0 6px hsl(var(--neon-blue) / 0.8);
+  }
+
+  /* Flake 2 */
+  .dark-flakes::after {
+    content: '';
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: hsl(var(--neon-blue) / 0.5);
+    border-radius: 50%;
+    top: -20px;
+    right: 40%;
+    animation: flake-fall-2 12s linear infinite 3s;
+    box-shadow: 0 0 4px hsl(var(--neon-blue) / 0.7);
   }
 
   /* Floating Geometric Shapes */
@@ -313,6 +359,31 @@ All colors MUST be HSL.
       linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
   }
+  
+  .animated-border {
+    position: relative;
+    border-radius: 12px;
+    padding: 3px;
+    background: linear-gradient(45deg, 
+      hsl(var(--neon-blue) / 0.8), 
+      hsl(var(--neon-blue) / 0.4), 
+      hsl(var(--neon-blue) / 0.8), 
+      hsl(var(--neon-blue) / 0.4)
+    );
+    background-size: 300% 300%;
+    animation: border-glow-move 3s ease-in-out infinite;
+    box-shadow: 
+      0 0 20px hsl(var(--neon-blue) / 0.5),
+      0 0 40px hsl(var(--neon-blue) / 0.3),
+      inset 0 0 20px hsl(var(--neon-blue) / 0.1);
+  }
+  
+  .animated-border-inner {
+    background: hsl(var(--background));
+    border-radius: 9px;
+    height: 100%;
+    width: 100%;
+  }
 }
 
 @layer utilities {
@@ -392,5 +463,47 @@ All colors MUST be HSL.
     15% { opacity: 0.6; }
     85% { opacity: 0.6; }
     100% { transform: translateY(100vh); opacity: 0; }
+  }
+  
+  @keyframes tech-float-1 {
+    0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+    25% { transform: translateY(-15px) translateX(10px) rotate(90deg); }
+    50% { transform: translateY(-8px) translateX(-12px) rotate(180deg); }
+    75% { transform: translateY(-20px) translateX(8px) rotate(270deg); }
+  }
+  
+  @keyframes tech-float-2 {
+    0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+    33% { transform: translateY(-12px) translateX(-8px) scale(1.2); }
+    66% { transform: translateY(-18px) translateX(15px) scale(0.8); }
+  }
+  
+  @keyframes flake-fall-1 {
+    0% { transform: translateY(-20px) translateX(0px) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { transform: translateY(100vh) translateX(50px) rotate(360deg); opacity: 0; }
+  }
+  
+  @keyframes flake-fall-2 {
+    0% { transform: translateY(-20px) translateX(0px) rotate(0deg); opacity: 0; }
+    15% { opacity: 0.6; }
+    85% { opacity: 0.6; }
+    100% { transform: translateY(100vh) translateX(-30px) rotate(-360deg); opacity: 0; }
+  }
+  
+  @keyframes border-glow-move {
+    0% { 
+      background-position: 0% 50%;
+      filter: hue-rotate(0deg);
+    }
+    50% { 
+      background-position: 100% 50%;
+      filter: hue-rotate(30deg);
+    }
+    100% { 
+      background-position: 0% 50%;
+      filter: hue-rotate(0deg);
+    }
   }
 }

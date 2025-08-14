@@ -34,7 +34,8 @@ export function ImageUpload({ onImageSelect, selectedImage, disabled }: ImageUpl
   };
 
   return (
-    <Card className="cyber-card p-6">
+    <div className="animated-border">
+      <Card className="cyber-card p-6 animated-border-inner">
       <div className="flex items-center gap-3 mb-4">
         <ImageIcon className="w-6 h-6 text-neon-pink neon-glow" />
         <h2 className="text-xl font-bold neon-text">Image Upload</h2>
@@ -105,5 +106,6 @@ export function ImageUpload({ onImageSelect, selectedImage, disabled }: ImageUpl
         </div>
       )}
     </Card>
+    </div>
   );
 }
