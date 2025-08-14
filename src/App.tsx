@@ -15,6 +15,10 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      {/* Neon Floating Animation Elements */}
+      <div className="neon-orbs" />
+      <div className="neon-shapes" />
+      <div className="neon-streaks" />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<UploadPage />} />
